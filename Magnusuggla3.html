@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Button Click Counter with Pop-up Images</title>
+    <style>
+        /* Full-screen background */
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            background-image: url('https://www.kunskapsskolan.se/images/18.2a24d5691840e44a8921b84/1666860514253/RundvandringKatrineholm.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Main container */
+        .container {
+            text-align: center;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        /* Main click button styling */
+        #clickButton {
+            padding: 100px;
+            font-size: 24px;
+            cursor: pointer;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+            position: relative;
+            width: 200px;
+            height: 100px;
+        }
+
+        /* Centered image inside button */
+        #clickButton img {
+            width: 80px;
+            height: 80px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Counter styling */
+        #counter {
+            font-size: 28px;
+            font-weight: bold;
+            color: black; /* Set the text color to black */
+            margin-top: 20px;
+        }
+
+        /* Top-right options button */
+        #topRightButton {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        /* Options modal */
+        #optionsModal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Volume slider */
+        .volume-slider {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        /* Close button in modal */
+        .closeButton {
+            margin-top: 20px;
+            padding: 8px 16px;
+            font-size: 14px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        /* Pop-up image styling */
+        .popup-image {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            opacity: 0;
+            animation: fadeIn 1s forwards, fadeOut 1s 1s forwards;
+            z-index: 0;
+        }
+
+        /* Fade-in animation */
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: scale(0.5); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Fade-out animation */
+        @keyframes fadeOut {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.5); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main button and counter -->
+    <div class="container" id="container">
+        <button id="clickButton">
+            <img src="https://new.static.tv.nu/19420995?forceFit=0&height=392&quality=50&width=392" alt="Icon">
+        </button>
+        <div id="counter">Magnus Riksdaler: 0</div>
+    </div>
+
+    <!-- Top-right options button -->
+    <button id="topRightButton">Options</button>
+
+    <!-- Options modal -->
+    <div id="optionsModal">
+        <!-- Added 'Musik' text -->
+        <p style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">Musik</p>
+        <input type="range" min="0" max="100" value="50" class="volume-slider" id="volumeSlider">
+        
+        <!-- New Gorilla Tag button -->
+        <button id="gorillaTagButton">Gorilla Tag</button>
+
+        <button class="closeButton" onclick="closeOptions()">Close</button>
+    </div>
+
+    <!-- Hidden audio element -->
+    <audio id="audioPlayer" src="audio/Sämst_På_Fortnite_Hardstyle_Remix.mp3" loop></audio> <!-- Ensure the file is in the correct folder -->
+
+    <script>
+        let clickCount = 0;
+
+        const button = document.getElementById("clickButton");
+        const counter = document.getElementById("counter");
+        const container = document.getElementById("container");
+        const optionsModal = document.getElementById("optionsModal");
+        const audioPlayer = document.getElementById("audioPlayer");
+        const volumeSlider = document.getElementById("volumeSlider");
+
+        // Open options modal
+        document.getElementById("topRightButton").onclick = function() {
+            optionsModal.style.display = "block";
+        };
+
+        // Close options modal
+        function closeOptions() {
+            optionsModal.style.display = "none";
+        }
+
+        // Generate random position for pop-up images
+        function getRandomPosition() {
+            const popupSize = 50;
+            let x, y;
+            const containerRect = container.getBoundingClientRect();
+            do {
+                x = Math.random() * (window.innerWidth - popupSize);
+                y = Math.random() * (window.innerHeight - popupSize);
+            } while (
+                x >= containerRect.left - popupSize &&
+                x <= containerRect.right &&
+                y >= containerRect.top - popupSize &&
+                y <= containerRect.bottom
+            );
+            return { x, y };
+        }
+
+        // Create a pop-up image at a random position
+        function createRandomImage() {
+            const img = document.createElement('img');
+            img.src = "https://static-00.iconduck.com/assets.00/guitar-emoji-2047x2048-3bn3adfq.png";
+            img.classList.add('popup-image');
+
+            const position = getRandomPosition();
+            img.style.left = `${position.x}px`;
+            img.style.top = `${position.y}px`;
+
+            document.body.appendChild(img);
+
+            setTimeout(() => {
+                img.remove();
+            }, 2000);
+        }
+
+        // Handle main button click
+        button.addEventListener("click", () => {
+            clickCount++;
+            counter.textContent = `Magnus Riksdaler: ${clickCount}`; 
+            createRandomImage();
+            audioPlayer.play();
+        });
+
+        // Link slider to audio volume
+        volumeSlider.addEventListener("input", function() {
+            audioPlayer.volume = volumeSlider.value / 100;
+        });
+
+        // Initialize audio volume to slider's default value
+        audioPlayer.volume = volumeSlider.value / 100;
+
+        // Gorilla Tag button functionality (change the music)
+        document.getElementById("gorillaTagButton").onclick = function() {
+            // Change the song to a new track (local file path)
+            audioPlayer.src = "audio/Welcome to Gorilla Tag (OFFICIAL MUSIC VIDEO).mp3"; // Replace with the actual local file path for the new song
+            audioPlayer.play(); // Start playing the new song immediately
+            alert("Music changed to a new song!");
+        };
+    </script>
+
+</body>
+</html>
